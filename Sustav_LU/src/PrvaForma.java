@@ -1,6 +1,14 @@
 
+import java.awt.List;
+import java.io.File;
+import java.io.FileNotFoundException;
+import static java.lang.System.exit;
 import javax.swing.JFileChooser;
-
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Scanner;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -34,6 +42,8 @@ public class PrvaForma extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         btnDrugaForma = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         jButton1.setText("jButton1");
 
@@ -41,6 +51,11 @@ public class PrvaForma extends javax.swing.JFrame {
         setTitle("Dimenzija");
 
         txtDimenzija.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
+        txtDimenzija.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtDimenzijaActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
         jLabel1.setText("Unesite dimenziju matrice:");
@@ -53,12 +68,19 @@ public class PrvaForma extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("jButton2");
+        jButton2.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
+        jButton2.setText("Pronađi matricu...");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
         });
+
+        jLabel2.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+        jLabel2.setText("Kreiraj novu matricu:");
+
+        jLabel3.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+        jLabel3.setText("Učitaj matricu iz txt datoteke:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -67,30 +89,36 @@ public class PrvaForma extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(19, 19, 19)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29)
-                        .addComponent(txtDimenzija, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 48, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(txtDimenzija, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(134, 134, 134)
-                        .addComponent(btnDrugaForma, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2)))
-                .addContainerGap())
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnDrugaForma, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(42, 42, 42)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(42, 42, 42)
+                .addGap(38, 38, 38)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtDimenzija, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnDrugaForma, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2))
-                .addGap(25, 25, 25))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtDimenzija, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnDrugaForma, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(84, 84, 84))
         );
 
         pack();
@@ -106,14 +134,147 @@ public class PrvaForma extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        JFileChooser neki = new JFileChooser();
-        neki.showOpenDialog(neki);
+        
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES", "txt", "text"); 
+        JFileChooser jchooser1 = new JFileChooser();
+        
+        jchooser1.setFileFilter(filter);    // smijemo učitat samo txt datoteke
+        int returnVal = jchooser1.showOpenDialog(jchooser1);
+        String imeDatoteke="";
+        
+        if ( returnVal == JFileChooser.APPROVE_OPTION ) {
+            File file = jchooser1.getSelectedFile(); 
+            try {
+                imeDatoteke = file.toString(); 
+            } catch ( Exception ex ) {
+                
+            }
+        } 
+       
+        String cijelaDatoteka = "", linija = "";
+        File input = new File( imeDatoteke );
+        ArrayList<String> linije = new ArrayList<String>();
+        //int br = saznajDimenziju(input);
+        //System.out.println(br);
+        
+        try {  
+            int retci = 0;
+            int stupci = 0;
+            double a;
+            Scanner myReader = new Scanner(input);        
+            
+            
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                linije.add(data);
+                retci++;
+            }
+
+            String[] l= linije.get(0).split(" ");
+            stupci = l.length;   //ode provjerit jel sve imaju isto stupaca, ili će čitat samo iste
+               
+            retci = linije.size();
+            matrica = new double[retci][stupci];
+            
+            for(int i = 0; i < retci; i++)
+            {
+                String[] k = linije.get(i).split(" ");
+                for(int j = 0; j < stupci; j++)
+                {
+                    try{
+                        matrica[i][j] = Double.parseDouble(k[j]);
+                    }
+                    catch(Exception e){
+                        JOptionPane.showMessageDialog(rootPane, "U datoteci se ne nalazi matrica!");
+                        exit(0); //ovo isto zatvori sve,a želim da se vrati u formu 1
+                    }
+                    
+                    cijelaDatoteka += matrica[i][j];
+                    cijelaDatoteka += " ";
+                }
+                cijelaDatoteka += "\n";
+            }
+            
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            //JOptionPane.showMessageDialog(rootPane, "U datoteci se ne nalazi matrica!");
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+            
+            
+        }
+        
+        String path = input.getAbsolutePath();
+        System.out.println(path);
+        DrugaForma druga = new DrugaForma();
+        druga.my_update1(matrica, path);
+        druga.setVisible(true);
+        
+        
+        
+        /*Scanner myReader = new Scanner(input);
+            int retci = 0;
+            int stupci = 0;
+        
+            while(myReader.hasNextLine()){
+                retci++;
+                while(myReader.hasNextDouble()){
+                    stupci++;
+                
+            }*/
+        
+       
+        
+        /*Connection c = null;
+        Statement stmt = null;
+      
+        try {
+           Class.forName("org.sqlite.JDBC");
+           c = DriverManager.getConnection("jdbc:sqlite:jprojekt.db");
+           c.setAutoCommit(false);
+           System.out.println("Opened database successfully");
+
+           stmt = c.createStatement();
+           String sql = "SELECT * FROM PROJECT "; 
+           ResultSet rs = stmt.executeQuery(sql);
+           while ( rs.next() ) {
+              int id = rs.getInt("id");
+                  String  put = rs.getString("MATRIX_PATH");
+                  String  rj = rs.getString("SOLUTION_PATH");
+                  int solved = rs.getInt("SOLVED");
+                  int lu = rs.getInt("LU");
+                  int ly = rs.getInt("LY");
+
+                  System.out.println( "ID = " + id );
+                  System.out.println( "put = " + put );
+                  System.out.println( "rj = " + rj );
+                  System.out.println( "solved = " + solved );
+                  System.out.println( "lu = " + lu );
+                  System.out.println( "ly = " + ly );
+                  System.out.println();
+
+          }
+          rs.close();
+
+           stmt.close();
+           c.commit();
+           c.close();
+        } catch ( Exception e ) {
+           System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+           System.exit(0);
+        }
+        System.out.println("Records created successfully");*/
+        
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void txtDimenzijaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDimenzijaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtDimenzijaActionPerformed
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws ClassNotFoundException {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -136,7 +297,10 @@ public class PrvaForma extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(PrvaForma.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+            
+        
+        
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -144,12 +308,39 @@ public class PrvaForma extends javax.swing.JFrame {
             }
         });
     }
-
+    public int saznajDimenziju(File f){ // da pročita dimenziju matrice, da je ne moramo pisat u file
+        Scanner s = null;
+        
+        try{
+            s = new Scanner(f);
+        }
+        catch(Exception e){
+            System.out.println("Pogreška");         
+        }
+        
+        int retci = 0;
+        int stupci = 0;
+        
+        while(s.hasNextLine()){
+            retci++;
+            while(s.hasNextDouble()){
+                stupci++;
+            }
+        }
+        
+        if(retci != stupci)
+            return -1;
+        else
+            return retci;
+    }
+    double matrica[][];
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDrugaForma;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JTextField txtDimenzija;
     // End of variables declaration//GEN-END:variables
 }

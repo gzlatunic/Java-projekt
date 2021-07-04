@@ -1,9 +1,17 @@
 
 import java.awt.Font;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import java.sql.*;
+import java.util.Scanner;
+import javax.swing.JOptionPane;
 
 
 
@@ -37,6 +45,14 @@ public class DrugaForma extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Unos elemenata matrice");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -51,6 +67,18 @@ public class DrugaForma extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        this.dispose(); //da se samo ova forma zatvori
+    }//GEN-LAST:event_formWindowClosing
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_formWindowClosed
 
     /**
      * @param args the command line arguments
@@ -116,6 +144,53 @@ public class DrugaForma extends javax.swing.JFrame {
         this.add(stvoriMatricu);
         stvoriMatricu.addActionListener(e -> mat(dimenzija));
         
+        JButton spremiMatricu = new JButton("Spremi matricu");
+        spremiMatricu.setBounds(x + 10, y +60, 150, 50);
+        this.add(spremiMatricu);
+        spremiMatricu.addActionListener(e -> spremi());
+        
+        
+        //triba povezat botun sa spremanjen u bazu
+    }
+    public void my_update1(double[][] matrica, String matrix_path){
+                
+        int x = 10;
+        int y = 10;
+        
+        mapa = new HashMap<>();
+        for(int i = 0; i < matrica.length; i++){
+            x = 10;
+            for(int j = 0; j < matrica.length; j++){
+                String var = "tekst" + i + j;
+                JTextField tekstic = new JTextField();
+                tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
+                tekstic.setName(var);
+                tekstic.setText(Double.toString(matrica[i][j]));
+                tekstic.addActionListener(new FieldListener());
+                mapa.put(var, tekstic);
+                tekstic.setBounds(x, y, 40, 40);
+                tekstic.setVisible(true);
+                this.add(tekstic);
+                
+                x += 40;
+            }
+            y += 40;
+        }
+        x = 0;
+        JButton stvoriMatricu = new JButton("Stvorite matricu"); //nzm triba li ovo ostat ode kad učitamo matricu
+        
+        //zelim da se ne ugasi ako zatvorim ovaj prozor
+        
+        stvoriMatricu.setBounds(x + 10, y +10, 150, 50);
+        this.add(stvoriMatricu);
+        
+        JButton rjesenje = new JButton("Pogledaj rješnje!");
+        //ode provjerit u bazi jel rješeno do kraja pa to javit u message dialogu
+        rjesenje.setBounds(x + 10, y + 70, 150, 50); //ov prilagodit
+        this.add(rjesenje);
+        rjesenje.addActionListener(e -> imaLiRjesenje(matrix_path));
+        
+        //stvoriMatricu.addActionListener(e -> mat(dimenzija));
     }
  
     public void mat(int dim){
@@ -220,6 +295,61 @@ public class DrugaForma extends javax.swing.JFrame {
         return x;
     }
 */
+    public void spremi()
+    {
+        File dir = null;
+        JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int returnVal = fc.showOpenDialog(null); //odabiremo direkotorij za spremanje matrice
+        
+        if( returnVal == JFileChooser.APPROVE_OPTION){
+            dir = fc.getSelectedFile();
+        }
+        
+        //radimo file
+        // ime pročitat iz 
+        //File file = new File(dir, )
+    }
+
+    public void imaLiRjesenje( String putanjaMatrice) {
+        
+        Connection c = null;
+        Statement stmt = null;
+      
+        try {
+           Class.forName("org.sqlite.JDBC");
+           c = DriverManager.getConnection("jdbc:sqlite:jprojekt.db");
+           c.setAutoCommit(false);
+           System.out.println("Opened database successfully");
+           int i = 0;
+           stmt = c.createStatement();
+           //String sql =String.format( "SELECT SOLVED FROM PROJECT WHERE MATRIX_PATH= ? ",putanjaMatrice);
+           String sql = String.format("SELECT SOLUTION_PATH FROM PROJECT WHERE MATRIX_PATH= ?", putanjaMatrice);
+
+           ResultSet rs = stmt.executeQuery(sql);
+           while ( rs.next() ) {
+                String  rj = rs.getString("SOLUTION_PATH");
+                JOptionPane.showMessageDialog(rootPane, "rj = " + rj );//pročitat iz datoteke rješenje, ovo će ispisat samo put do rj
+                i = 1;
+            }
+           if (i == 0)
+               JOptionPane.showMessageDialog(rootPane, "Matrica još nije u bazi podataka!" );
+           
+           //ode stavit i za mogućnosti da ima neki dio rješenja! 
+           
+           rs.close();
+           stmt.close();
+           c.commit();
+           c.close();
+           
+        } catch ( Exception e ) {
+           System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+           System.exit(0);
+        }
+        System.out.println("Records created successfully");
+    }
+    
+
 }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
