@@ -116,25 +116,41 @@ public class DrugaForma extends javax.swing.JFrame {
     }
     
     Map<String, JTextField> mapa;
+    Map<String, JTextField> mapa_jednakost;
     public void my_update(int dimenzija){
         int x = 10;
         int y = 10;
         
         mapa = new HashMap<>();
+        mapa_jednakost = new HashMap<>();
         for(int i = 0; i < dimenzija; i++){
             x = 10;
-            for(int j = 0; j < dimenzija; j++){
-                String var = "tekst" + i + j;
+            for(int j = 0; j < dimenzija + 1; j++){
+                if(j < dimenzija){
+                    String var = "tekst" + i + j;
+                    JTextField tekstic = new JTextField();
+                    tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
+                    tekstic.setName(var);
+                    tekstic.addActionListener(new FieldListener());
+                    mapa.put(var, tekstic);
+                    tekstic.setBounds(x, y, 30, 30);
+                    tekstic.setVisible(true);
+                    this.add(tekstic);
+
+                    x += 40;
+                }
+                else
+                {   x += 10;
+                String var = "tekst" + i;
                 JTextField tekstic = new JTextField();
                 tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
                 tekstic.setName(var);
                 tekstic.addActionListener(new FieldListener());
-                mapa.put(var, tekstic);
-                tekstic.setBounds(x, y, 30, 30);
-                tekstic.setVisible(true);
-                this.add(tekstic);
-                
-                x += 40;
+                    mapa_jednakost.put(var, tekstic);
+                    tekstic.setBounds(x, y, 30, 30);
+                    tekstic.setVisible(true);
+                    this.add(tekstic);
+                }
             }
             y += 40;
         }
@@ -142,8 +158,9 @@ public class DrugaForma extends javax.swing.JFrame {
         JButton stvoriMatricu = new JButton("Stvorite matricu");
         stvoriMatricu.setBounds(x + 10, y +10, 150, 50);
         this.add(stvoriMatricu);
-        stvoriMatricu.addActionListener(e -> mat(dimenzija));
+        stvoriMatricu.addActionListener(e -> riješi_sustav(dimenzija));
         
+        //PROVJERI ŠTO JE OVO
         JButton spremiMatricu = new JButton("Spremi matricu");
         spremiMatricu.setBounds(x + 10, y +60, 150, 50);
         this.add(spremiMatricu);
@@ -152,6 +169,8 @@ public class DrugaForma extends javax.swing.JFrame {
         
         //triba povezat botun sa spremanjen u bazu
     }
+    
+    /* Vrati se na ovo pa u to ukumponiraj da radi - Gabi
     public void my_update1(double[][] matrica, String matrix_path){
                 
         int x = 10;
@@ -183,7 +202,6 @@ public class DrugaForma extends javax.swing.JFrame {
         
         stvoriMatricu.setBounds(x + 10, y +10, 150, 50);
         this.add(stvoriMatricu);
-        
         JButton rjesenje = new JButton("Pogledaj rješnje!");
         //ode provjerit u bazi jel rješeno do kraja pa to javit u message dialogu
         rjesenje.setBounds(x + 10, y + 70, 150, 50); //ov prilagodit
@@ -192,56 +210,61 @@ public class DrugaForma extends javax.swing.JFrame {
         
         //stvoriMatricu.addActionListener(e -> mat(dimenzija));
     }
+    */
  
-    public void mat(int dim){
-        int[][] matrica = new int[dim][dim];
+    public void riješi_sustav(int dim){
+        Matrica vrati_matricu = new Matrica(dim);
         for(int i = 0; i < dim; i++){
             for(int j = 0; j < dim; j++){
                 String ime = "tekst" + i + j;
                 JTextField temp = mapa.get(ime);
-                matrica[i][j] = Integer.parseInt(String.valueOf(temp.getText()));
+                vrati_matricu.matrica[i][j] = Double.parseDouble((String.valueOf(temp.getText())));
             }
         }
-        DvijeMatrice dvije = luFaktorizacija(matrica, dim);
-        double[][] A = dvije.A;
+        double[] b = new double[dim];
         for(int i = 0; i < dim; i++){
-            for(int j = 0; j < dim; j++){
-                System.out.print(A[i][j] + "  ");
-            }
-            System.out.println();
+            String ime = "tekst" + i;
+            JTextField temp = mapa_jednakost.get(ime);
+            b[i] = Double.parseDouble((String.valueOf(temp.getText())));
         }
+        DvijeMatrice dvije = luFaktorizacija(vrati_matricu, dim);
         
-        double[][] B = dvije.B;
+        Matrica L = dvije.A;
+        
+        Matrica U = dvije.B;
+        
+        Sustav obj = new Sustav();
+        double[] y = obj.riješiJednadžbu(L, b);
+        double[] rj = obj.riješiJednadžbu(U, y);
+        
+        System.out.print("Rješenje sustava:");
         for(int i = 0; i < dim; i++){
-            for(int j = 0; j < dim; j++){
-                System.out.print(B[i][j] + "  ");
-            }
-            System.out.println();
+            System.out.print(rj[i] + "   ");
         }
     }
-    public DvijeMatrice luFaktorizacija(int[][] matrica, int dim){
+    public DvijeMatrice luFaktorizacija(Matrica matr, int dim){
         // Ovdje treba popraviti dio sa dijeljenjem jer java zaokružuje prema nuli
         // Pa se rješenja ne slažu najbolje
-        double[][] L = new double[dim][dim];
-        double[][] U = new double[dim][dim];
+        Matrica L = new Matrica(dim);
+        Matrica U = new Matrica(dim);
         
         for(int i = 0; i < dim; i++){
             for(int k = i; k < dim; k++){
-                int sum = 0;
+                double sum = 0;
                 for(int j = 0; j < i; j++){
-                    sum += (L[i][j] * U[j][k]);
+                    sum += (L.matrica[i][j] * U.matrica[j][k]);
                 }
-                U[i][k] = matrica[i][k] - sum;
+                U.matrica[i][k] = matr.matrica[i][k] - sum;
             }
             for(int k = i; k < dim; k++){
                 if (i == k)
-                    L[i][i] = 1;
+                    L.matrica[i][i] = 1;
                 else {
                     int sum = 0;
                     for(int j = 0; j < i; j++){
-                        sum += (L[k][j] * U[j][i]);
+                        sum += L.matrica[k][j] * U.matrica[j][i];
                     }
-                    L[k][i] = (matrica[k][i] - sum) / U[i][i];
+                    L.matrica[k][i] = (matr.matrica[k][i] - sum) / U.matrica[i][i];
                 }
             }
         }
@@ -249,52 +272,8 @@ public class DrugaForma extends javax.swing.JFrame {
         DvijeMatrice dvije = new DvijeMatrice(L, U);
         return dvije;
     }
-    /*
-    public double[] luFaktorizacija(int[][] matrica,int[] b, int dimenzija){
-        //int[][] U = new int[dimenzija][dimenzija];
-        //int[][]L = new int[dimenzija][dimenzija];
-        
-        double[][] lu = new double[dimenzija][dimenzija];
-        int sum = 0;
-        
-        for(int i = 0; i < dimenzija; i++){
-            for(int j = i; j < dimenzija; j++){
-                sum = 0;
-                for(int k = 0; k < i; k++){
-                    sum += lu[i][k] * lu[k][j];
-                }
-                lu[i][j] = matrica[i][j] - sum;
-            }
-            for(int j = i + 1; j < dimenzija; j++){
-                sum = 0;
-                for(int k = 0; k < i; k++){
-                    sum += lu[j][k] - lu[k][i];
-                }
-                lu[j][i] = (double)(1 / (lu[i][i])) * (matrica[j][i] - sum);
-            }
-        }
-        
-        //Rješenje Ly = b
-        double[] y = new double[dimenzija];
-        for(int i = 0; i < dimenzija; i++){
-            sum = 0;
-            for(int k = 0; k < i; k++){
-                sum += lu[i][k] * y[k];
-            }
-            y[i] = b[i] - sum;  
-        }
-        
-        double[] x = new double[dimenzija];
-        for(int i = dimenzija - 1; i >= 0; i--){
-            sum = 0;
-            for(int k = i + 1; k < dimenzija; k++){
-                sum += lu[i][k] * x[k];
-            }
-            x[i] = (double)(1 / (lu[i][i])) * (y[i] - sum);
-        }
-        return x;
-    }
-*/
+   
+   
     public void spremi()
     {
         File dir = null;

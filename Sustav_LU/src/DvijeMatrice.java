@@ -10,9 +10,9 @@
  */
 public class DvijeMatrice {
     
-    public final double[][] A;
-    public final double[][] B;
-    public DvijeMatrice(double[][] A, double[][] B){
+    public final Matrica A;
+    public final Matrica B;
+    public DvijeMatrice(Matrica A, Matrica B){
         this.A = A;
         this.B = B;
     }
