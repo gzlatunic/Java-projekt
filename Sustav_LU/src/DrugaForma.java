@@ -170,7 +170,7 @@ public class DrugaForma extends javax.swing.JFrame {
         //triba povezat botun sa spremanjen u bazu
     }
     
-    /* Vrati se na ovo pa u to ukumponiraj da radi - Gabi
+    //Vrati se na ovo pa u to ukumponiraj da radi - Gabi
     public void my_update1(double[][] matrica, String matrix_path){
                 
         int x = 10;
@@ -210,7 +210,7 @@ public class DrugaForma extends javax.swing.JFrame {
         
         //stvoriMatricu.addActionListener(e -> mat(dimenzija));
     }
-    */
+    
  
     public void riješi_sustav(int dim){
         Matrica vrati_matricu = new Matrica(dim);
@@ -294,7 +294,30 @@ public class DrugaForma extends javax.swing.JFrame {
         
         Connection c = null;
         Statement stmt = null;
-      
+        
+        /*try {
+           Class.forName("org.sqlite.JDBC");
+           c = DriverManager.getConnection("jdbc:sqlite:jprojekt.db");
+           System.out.println("Opened database successfully");
+           
+           stmt = c.createStatement();
+           String sql = "CREATE TABLE PROJECT_DATA" +
+                          "(ID INTEGER PRIMARY KEY  AUTOINCREMENT NOT NULL ," +
+                          " PATH_MATRIX           TEXT    NOT NULL, " + 
+                          " PATH_SOLUTION          TEXT, " + 
+                          " SOLVED        INT NOT NULL," + 
+                          " LU  TEXT," +
+                          " LY  TEXT)"; 
+           stmt.executeUpdate(sql);
+           
+           stmt.close();
+           c.close();
+        } catch ( Exception e ) {
+           System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+           System.exit(0);
+        }
+        System.out.println("Table created successfully");*/
+
         try {
            Class.forName("org.sqlite.JDBC");
            c = DriverManager.getConnection("jdbc:sqlite:jprojekt.db");
@@ -303,31 +326,101 @@ public class DrugaForma extends javax.swing.JFrame {
            int i = 0;
            stmt = c.createStatement();
            //String sql =String.format( "SELECT SOLVED FROM PROJECT WHERE MATRIX_PATH= ? ",putanjaMatrice);
-           String sql = String.format("SELECT SOLUTION_PATH FROM PROJECT WHERE MATRIX_PATH= ?", putanjaMatrice);
+           
+           /*PreparedStatement pst;
+            String sql ="SELECT * FROM patient.patient P WHERE P._ID = ?";
+            pst = cn.prepareStatement(sql);
+            pst.setInt(1, 1);*/
+           
+           PreparedStatement pst;
+           String sql = "SELECT PATH_MATRIX, PATH_SOLUTION FROM PROJECT_DATA WHERE PATH_MATRIX= ?";
+           pst = c.prepareStatement(sql);
+           pst.setString(1, putanjaMatrice);
 
-           ResultSet rs = stmt.executeQuery(sql);
+           ResultSet rs = pst.executeQuery();
+           //System.out.println("Ovo je rs.next:" + rs.next());
            while ( rs.next() ) {
-                String  rj = rs.getString("SOLUTION_PATH");
+                String  rj = rs.getString("PATH_SOLUTION");
                 JOptionPane.showMessageDialog(rootPane, "rj = " + rj );//pročitat iz datoteke rješenje, ovo će ispisat samo put do rj
+                System.out.println("ovo je rjesenje");
+                //System.exit(0);
                 i = 1;
             }
            if (i == 0)
-               JOptionPane.showMessageDialog(rootPane, "Matrica još nije u bazi podataka!" );
-           
-           //ode stavit i za mogućnosti da ima neki dio rješenja! 
-           
-           rs.close();
-           stmt.close();
-           c.commit();
-           c.close();
-           
-        } catch ( Exception e ) {
-           System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-           System.exit(0);
-        }
-        System.out.println("Records created successfully");
+           {
+                JOptionPane.showMessageDialog(rootPane, "Matrica još nije u bazi podataka, dodajem!!" );
+   
+                /*String dodaj = "INSERT INTO PROJECT_DATA(PATH_MATRIX, SOLVED, LU, LY) VALUES(?,?,?,?)";
+                //String dodaj = "INSERT INTO PROJECT_DB(PATH_MATRIX) VALUES(?)";
+                System.out.println( "dodajem"  );
+                PreparedStatement pstmt = c . prepareStatement ( dodaj ) ;
+                pstmt.setString (1 , putanjaMatrice ) ;
+                pstmt.setInt(2, 0);
+                System.out.println( "dosa do ode"  );
+                pstmt.setString(3, "");
+                pstmt.setString(4, "");
+
+                
+                pstmt.executeUpdate () ;*/
+               }
+
+               //ode stavit i za mogućnosti da ima neki dio rješenja! 
+
+               rs.close();
+               stmt.close();
+               c.commit();
+               c.close();
+
+            } catch ( Exception e ) {
+               System.out.println("Ovdje je greška");
+               System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+               System.exit(0);
+               
+            }
+            System.out.println("Records created successfully");
+            ispisSvega();
+            System.out.println("kraj");
     }
-    
+    public void ispisSvega()
+    {
+        Connection c = null;
+        Statement stmt = null;
+        try {
+               Class.forName("org.sqlite.JDBC");
+               c = DriverManager.getConnection("jdbc:sqlite:jprojekt.db");
+               c.setAutoCommit(false);
+               System.out.println("Opened database successfully");
+
+               stmt = c.createStatement();
+               String sql = "SELECT * FROM PROJECT_DATA "; 
+               ResultSet rs = stmt.executeQuery(sql);
+               while ( rs.next() ) {
+                  int id = rs.getInt("id");
+                      String  put = rs.getString("PATH_MATRIX");
+                      String  rj = rs.getString("PATH_SOLUTION");
+                      int solved = rs.getInt("SOLVED");
+                      String lu = rs.getString("LU");
+                      String ly = rs.getString("LY");
+
+                      System.out.println( "ID = " + id );
+                      System.out.println( "put = " + put );
+                      System.out.println( "rj = " + rj );
+                      System.out.println( "solved = " + solved );
+                      System.out.println( "lu = " + lu );
+                      System.out.println( "ly = " + ly );
+                      System.out.println();
+
+              }
+              rs.close();
+
+               stmt.close();
+               c.commit();
+               c.close();
+            } catch ( Exception e ) {
+               System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+               System.exit(0);
+            }
+    }
 
 }
     // Variables declaration - do not modify//GEN-BEGIN:variables

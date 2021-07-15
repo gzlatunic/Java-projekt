@@ -139,7 +139,7 @@ public class PrvaForma extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        
+        //čitanje matrice iz datoteke
         FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES", "txt", "text"); 
         JFileChooser jchooser1 = new JFileChooser();
         
@@ -161,10 +161,11 @@ public class PrvaForma extends javax.swing.JFrame {
         ArrayList<String> linije = new ArrayList<String>();
         //int br = saznajDimenziju(input);
         //System.out.println(br);
+        int retci = 0;
+        int stupci = 0;
         
         try {  
-            int retci = 0;
-            int stupci = 0;
+            
             double a;
             Scanner myReader = new Scanner(input);        
             
@@ -195,9 +196,11 @@ public class PrvaForma extends javax.swing.JFrame {
                     }
                     
                     cijelaDatoteka += matrica[i][j];
+                    System.out.print(matrica[i][j] + "  ");
                     cijelaDatoteka += " ";
                 }
                 cijelaDatoteka += "\n";
+                System.out.print("\n");
             }
             
             myReader.close();
@@ -208,14 +211,14 @@ public class PrvaForma extends javax.swing.JFrame {
             
             
         }
-        /*
+        
         String path = input.getAbsolutePath();
         System.out.println(path);
         DrugaForma druga = new DrugaForma();
         druga.my_update1(matrica, path);
         druga.setVisible(true);
         
-        */
+        
         
         /*Scanner myReader = new Scanner(input);
             int retci = 0;
@@ -225,50 +228,14 @@ public class PrvaForma extends javax.swing.JFrame {
                 retci++;
                 while(myReader.hasNextDouble()){
                     stupci++;
+                }
                 
             }*/
         
        
         
-        /*Connection c = null;
-        Statement stmt = null;
-      
-        try {
-           Class.forName("org.sqlite.JDBC");
-           c = DriverManager.getConnection("jdbc:sqlite:jprojekt.db");
-           c.setAutoCommit(false);
-           System.out.println("Opened database successfully");
-
-           stmt = c.createStatement();
-           String sql = "SELECT * FROM PROJECT "; 
-           ResultSet rs = stmt.executeQuery(sql);
-           while ( rs.next() ) {
-              int id = rs.getInt("id");
-                  String  put = rs.getString("MATRIX_PATH");
-                  String  rj = rs.getString("SOLUTION_PATH");
-                  int solved = rs.getInt("SOLVED");
-                  int lu = rs.getInt("LU");
-                  int ly = rs.getInt("LY");
-
-                  System.out.println( "ID = " + id );
-                  System.out.println( "put = " + put );
-                  System.out.println( "rj = " + rj );
-                  System.out.println( "solved = " + solved );
-                  System.out.println( "lu = " + lu );
-                  System.out.println( "ly = " + ly );
-                  System.out.println();
-
-          }
-          rs.close();
-
-           stmt.close();
-           c.commit();
-           c.close();
-        } catch ( Exception e ) {
-           System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-           System.exit(0);
-        }
-        System.out.println("Records created successfully");*/
+        
+        System.out.println("Records created successfully");
         
     }//GEN-LAST:event_jButton2ActionPerformed
 
