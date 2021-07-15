@@ -123,7 +123,7 @@ public class PrvaForma extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void btnDrugaFormaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDrugaFormaActionPerformed
         try{
         int dimenzija = Integer.parseInt(txtDimenzija.getText());
@@ -140,6 +140,7 @@ public class PrvaForma extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         //čitanje matrice iz datoteke
+
         FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES", "txt", "text"); 
         JFileChooser jchooser1 = new JFileChooser();
         

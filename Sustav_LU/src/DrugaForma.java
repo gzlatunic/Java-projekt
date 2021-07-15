@@ -177,21 +177,35 @@ public class DrugaForma extends javax.swing.JFrame {
         int y = 10;
         
         mapa = new HashMap<>();
-        for(int i = 0; i < matrica.length; i++){
+         for(int i = 0; i < matrica.length; i++){
             x = 10;
-            for(int j = 0; j < matrica.length; j++){
-                String var = "tekst" + i + j;
-                JTextField tekstic = new JTextField();
-                tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
-                tekstic.setName(var);
-                tekstic.setText(Double.toString(matrica[i][j]));
-                tekstic.addActionListener(new FieldListener());
-                mapa.put(var, tekstic);
-                tekstic.setBounds(x, y, 40, 40);
-                tekstic.setVisible(true);
-                this.add(tekstic);
-                
-                x += 40;
+            for(int j = 0; j < matrica.length + 1; j++){
+               if(j < matrica.length){
+                     String var = "tekst" + i + j;
+                    JTextField tekstic = new JTextField();
+                    tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
+                    tekstic.setName(var);
+                    tekstic.setText(Double.toString(matrica[i][j]));
+                    tekstic.addActionListener(new FieldListener());
+                    mapa.put(var, tekstic);
+                    tekstic.setBounds(x, y, 40, 40);
+                    tekstic.setVisible(true);
+                    this.add(tekstic);
+
+                    x += 40;
+                }
+                else
+                {   x += 10;
+                    String var = "tekst" + i;
+                    JTextField tekstic = new JTextField();
+                    tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
+                    tekstic.setName(var);
+                    tekstic.addActionListener(new FieldListener());
+                    mapa.put(var, tekstic);
+                    tekstic.setBounds(x, y, 30, 30);
+                    tekstic.setVisible(true);
+                    this.add(tekstic);
+                }
             }
             y += 40;
         }
@@ -207,6 +221,7 @@ public class DrugaForma extends javax.swing.JFrame {
         rjesenje.setBounds(x + 10, y + 70, 150, 50); //ov prilagodit
         this.add(rjesenje);
         rjesenje.addActionListener(e -> imaLiRjesenje(matrix_path));
+        stvoriMatricu.addActionListener(e -> riješi_sustav(matrica.length));
         
         //stvoriMatricu.addActionListener(e -> mat(dimenzija));
     }
@@ -350,7 +365,7 @@ public class DrugaForma extends javax.swing.JFrame {
            {
                 JOptionPane.showMessageDialog(rootPane, "Matrica još nije u bazi podataka, dodajem!!" );
    
-                /*String dodaj = "INSERT INTO PROJECT_DATA(PATH_MATRIX, SOLVED, LU, LY) VALUES(?,?,?,?)";
+                String dodaj = "INSERT INTO PROJECT_DATA(PATH_MATRIX, SOLVED, LU, LY) VALUES(?,?,?,?)";
                 //String dodaj = "INSERT INTO PROJECT_DB(PATH_MATRIX) VALUES(?)";
                 System.out.println( "dodajem"  );
                 PreparedStatement pstmt = c . prepareStatement ( dodaj ) ;
@@ -361,7 +376,7 @@ public class DrugaForma extends javax.swing.JFrame {
                 pstmt.setString(4, "");
 
                 
-                pstmt.executeUpdate () ;*/
+                pstmt.executeUpdate () ;
                }
 
                //ode stavit i za mogućnosti da ima neki dio rješenja! 
