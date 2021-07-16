@@ -231,24 +231,13 @@ public class DrugaForma extends javax.swing.JFrame {
             y += 40;
         }
         x = 0;
-        JButton stvoriMatricu = new JButton("Stvorite matricu"); //nzm triba li ovo ostat ode kad učitamo matricu
         
-        //zelim da se ne ugasi ako zatvorim ovaj prozor
-        
-        stvoriMatricu.setBounds(x + 10, y +10, 150, 50);
-        this.add(stvoriMatricu);
         JButton rjesenje = new JButton("Pogledaj rješnje!");
         //ode provjerit u bazi jel rješeno do kraja pa to javit u message dialogu
         rjesenje.setBounds(x + 10, y + 70, 150, 50); //ov prilagodit
         this.add(rjesenje);
         rjesenje.addActionListener(e -> imaLiRjesenje(matrix_path, chosen_path));
-        stvoriMatricu.addActionListener(e -> {
-            try {
-                riješi_sustav(matrica.length);
-            } catch (IOException ex) {
-                Logger.getLogger(DrugaForma.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
+        
         
         //stvoriMatricu.addActionListener(e -> mat(dimenzija));
     }
