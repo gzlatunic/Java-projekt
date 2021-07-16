@@ -2,7 +2,13 @@
 import java.awt.Font;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JButton;
@@ -12,6 +18,10 @@ import javax.swing.JTextField;
 import java.sql.*;
 import java.util.Scanner;
 import javax.swing.JOptionPane;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 
@@ -114,13 +124,13 @@ public class DrugaForma extends javax.swing.JFrame {
             }
         });
     }
-    
+    JTextField file_save_path = new JTextField();
     Map<String, JTextField> mapa;
     Map<String, JTextField> mapa_jednakost;
+    
     public void my_update(int dimenzija){
         int x = 10;
         int y = 10;
-        
         mapa = new HashMap<>();
         mapa_jednakost = new HashMap<>();
         for(int i = 0; i < dimenzija; i++){
@@ -146,10 +156,10 @@ public class DrugaForma extends javax.swing.JFrame {
                 tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
                 tekstic.setName(var);
                 tekstic.addActionListener(new FieldListener());
-                    mapa_jednakost.put(var, tekstic);
-                    tekstic.setBounds(x, y, 30, 30);
-                    tekstic.setVisible(true);
-                    this.add(tekstic);
+                mapa_jednakost.put(var, tekstic);
+                tekstic.setBounds(x, y, 30, 30);
+                tekstic.setVisible(true);
+                this.add(tekstic);
                 }
             }
             y += 40;
@@ -158,11 +168,21 @@ public class DrugaForma extends javax.swing.JFrame {
         JButton stvoriMatricu = new JButton("Stvorite matricu");
         stvoriMatricu.setBounds(x + 10, y +10, 150, 50);
         this.add(stvoriMatricu);
-        stvoriMatricu.addActionListener(e -> riješi_sustav(dimenzija));
-        
+        stvoriMatricu.addActionListener(e -> {
+            try {
+                riješi_sustav(dimenzija);
+            } catch (IOException ex) {
+                Logger.getLogger(DrugaForma.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
         //PROVJERI ŠTO JE OVO
+        
+        file_save_path.setName("file_save_path");
+        file_save_path.setBounds(x + 10, y +60, 150, 50);
+        file_save_path.setVisible(true);
+        this.add(file_save_path);
         JButton spremiMatricu = new JButton("Spremi matricu");
-        spremiMatricu.setBounds(x + 10, y +60, 150, 50);
+        spremiMatricu.setBounds(x + 10, y +110, 150, 50);
         this.add(spremiMatricu);
         spremiMatricu.addActionListener(e -> spremi());
         
@@ -177,7 +197,7 @@ public class DrugaForma extends javax.swing.JFrame {
         int y = 10;
         
         mapa = new HashMap<>();
-         for(int i = 0; i < matrica.length; i++){
+         for(int i = 0; i < matrica.length; i++){ //msn da ce ode ic minus 1
             x = 10;
             for(int j = 0; j < matrica.length + 1; j++){
                if(j < matrica.length){
@@ -200,6 +220,7 @@ public class DrugaForma extends javax.swing.JFrame {
                     JTextField tekstic = new JTextField();
                     tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
                     tekstic.setName(var);
+                    tekstic.setText(Double.toString(matrica[i][j]));
                     tekstic.addActionListener(new FieldListener());
                     mapa.put(var, tekstic);
                     tekstic.setBounds(x, y, 30, 30);
@@ -220,14 +241,20 @@ public class DrugaForma extends javax.swing.JFrame {
         //ode provjerit u bazi jel rješeno do kraja pa to javit u message dialogu
         rjesenje.setBounds(x + 10, y + 70, 150, 50); //ov prilagodit
         this.add(rjesenje);
-        rjesenje.addActionListener(e -> imaLiRjesenje(matrix_path));
-        stvoriMatricu.addActionListener(e -> riješi_sustav(matrica.length));
+        rjesenje.addActionListener(e -> imaLiRjesenje(matrix_path, chosen_path));
+        stvoriMatricu.addActionListener(e -> {
+            try {
+                riješi_sustav(matrica.length);
+            } catch (IOException ex) {
+                Logger.getLogger(DrugaForma.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
         
         //stvoriMatricu.addActionListener(e -> mat(dimenzija));
     }
     
  
-    public void riješi_sustav(int dim){
+    public void riješi_sustav(int dim) throws IOException{
         Matrica vrati_matricu = new Matrica(dim);
         for(int i = 0; i < dim; i++){
             for(int j = 0; j < dim; j++){
@@ -256,6 +283,71 @@ public class DrugaForma extends javax.swing.JFrame {
         for(int i = 0; i < dim; i++){
             System.out.print(rj[i] + "   ");
         }
+        
+        //upisivanje matrice u datoteku i spremanje u bazu
+        try {
+       
+            File file = new File(chosen_path);
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter writer = new BufferedWriter(fw);
+
+
+            for (int i = 0; i < dim; i++) {
+                for (int j = 0; j < dim + 1; j++) {
+                    //if( i < dim )
+                    //{               
+                        if( j < dim)
+                        {
+                            String ime = "tekst" + i + j;
+                            JTextField temp = mapa.get(ime);
+                            Double a = Double.parseDouble((String.valueOf(temp.getText())));
+                            writer.write(a+ " ");
+                            //System.out.println(a+" ");
+                        }
+                        else
+                        {
+                            String ime = "tekst" + i;
+                            JTextField temp = mapa_jednakost.get(ime);
+                            Double a = Double.parseDouble((String.valueOf(temp.getText())));
+                            writer.write(a+ " ");
+                            //System.out.println(a+" ");
+                        }
+                        
+
+                    //}
+                    
+                }
+                //System.out.println("\n");
+                writer.newLine();
+            }
+            writer.flush();
+            writer.close();
+            
+
+        } catch (Exception e) {
+            System.out.println("Error");
+            System.out.println(chosen_path);
+        }
+        //upisivanje rješenja u datoteku
+        try {
+       
+            File file = new File(solution_path);
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter writer = new BufferedWriter(fw);
+
+
+            for (int i = 0; i < dim ; i++) {
+                writer.write(rj[i]+ " ");
+            }
+            writer.flush();
+            writer.close();
+            
+
+        } catch (Exception e) {
+            System.out.println("Error");
+            System.out.println(chosen_path);
+        }
+        imaLiRjesenje(chosen_path, solution_path);
     }
     public DvijeMatrice luFaktorizacija(Matrica matr, int dim){
         // Ovdje treba popraviti dio sa dijeljenjem jer java zaokružuje prema nuli
@@ -288,7 +380,8 @@ public class DrugaForma extends javax.swing.JFrame {
         return dvije;
     }
    
-   
+    String chosen_path;
+    String solution_path;
     public void spremi()
     {
         File dir = null;
@@ -299,14 +392,19 @@ public class DrugaForma extends javax.swing.JFrame {
         if( returnVal == JFileChooser.APPROVE_OPTION){
             dir = fc.getSelectedFile();
         }
+        solution_path = dir + "\\" + "RJ_" +  file_save_path.getText();
+        chosen_path = dir + "\\" + file_save_path.getText();
+        System.out.println(chosen_path);
+        
+        
         
         //radimo file
         // ime pročitat iz 
         //File file = new File(dir, )
     }
 
-    public void imaLiRjesenje( String putanjaMatrice) {
-        
+    public void imaLiRjesenje( String putanjaMatrice, String putanjaRjesenja) {
+        //ako je matrica tek stvorena putanjaRjesenja=""
         Connection c = null;
         Statement stmt = null;
         
@@ -354,26 +452,49 @@ public class DrugaForma extends javax.swing.JFrame {
 
            ResultSet rs = pst.executeQuery();
            //System.out.println("Ovo je rs.next:" + rs.next());
+           String rj;
            while ( rs.next() ) {
-                String  rj = rs.getString("PATH_SOLUTION");
-                JOptionPane.showMessageDialog(rootPane, "rj = " + rj );//pročitat iz datoteke rješenje, ovo će ispisat samo put do rj
+                rj = rs.getString("PATH_SOLUTION");
+                //JOptionPane.showMessageDialog(rootPane, "rj = " + rj );//pročitat iz datoteke rješenje, ovo će ispisat samo put do rj
                 System.out.println("ovo je rjesenje");
                 //System.exit(0);
                 i = 1;
+                 try {  
+                    String cijelaDatoteka = "", linija = "";
+                    File input = new File( rj );
+                    double a;
+                    Scanner myReader = new Scanner(input);        
+
+                    String data = myReader.nextLine();
+                    JOptionPane.showMessageDialog(rootPane, "rj = " + data );
+                    myReader.close();
+                }  
+                catch (FileNotFoundException e) {
+                //JOptionPane.showMessageDialog(rootPane, "U datoteci se ne nalazi matrica!");
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+
+
             }
+           
+           
+           }
+           
+           
            if (i == 0)
            {
                 JOptionPane.showMessageDialog(rootPane, "Matrica još nije u bazi podataka, dodajem!!" );
    
-                String dodaj = "INSERT INTO PROJECT_DATA(PATH_MATRIX, SOLVED, LU, LY) VALUES(?,?,?,?)";
+                String dodaj = "INSERT INTO PROJECT_DATA(PATH_MATRIX, PATH_SOLUTION, SOLVED, LU, LY) VALUES(?,?,?,?,?)";
                 //String dodaj = "INSERT INTO PROJECT_DB(PATH_MATRIX) VALUES(?)";
                 System.out.println( "dodajem"  );
                 PreparedStatement pstmt = c . prepareStatement ( dodaj ) ;
                 pstmt.setString (1 , putanjaMatrice ) ;
-                pstmt.setInt(2, 0);
+                pstmt.setString (2 , putanjaRjesenja ) ;
+                pstmt.setInt(3, 1);
                 System.out.println( "dosa do ode"  );
-                pstmt.setString(3, "");
                 pstmt.setString(4, "");
+                pstmt.setString(5, "");
 
                 
                 pstmt.executeUpdate () ;
@@ -396,6 +517,7 @@ public class DrugaForma extends javax.swing.JFrame {
             ispisSvega();
             System.out.println("kraj");
     }
+    
     public void ispisSvega()
     {
         Connection c = null;
@@ -436,6 +558,8 @@ public class DrugaForma extends javax.swing.JFrame {
                System.exit(0);
             }
     }
+
+   
 
 }
     // Variables declaration - do not modify//GEN-BEGIN:variables

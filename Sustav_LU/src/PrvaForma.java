@@ -181,16 +181,17 @@ public class PrvaForma extends javax.swing.JFrame {
             stupci = l.length;   //ode provjerit jel sve imaju isto stupaca, ili će čitat samo iste
                
             retci = linije.size();
-            matrica = new double[retci][stupci];
+            matrica = new double[retci][stupci]; // ovo je matrica s rješenjima i sa slobodnima
             
-            for(int i = 0; i < retci; i++)
+            for(int i = 0; i < retci ; i++) //modificirala jer ipak rješenje spremamo u isti file u zadnji red
             {
                 String[] k = linije.get(i).split(" ");
                 for(int j = 0; j < stupci; j++)
                 {
                     try{
-                        matrica[i][j] = Double.parseDouble(k[j]);
-                    }
+                            matrica[i][j] = Double.parseDouble(k[j]);
+                            
+                    }                    
                     catch(Exception e){
                         JOptionPane.showMessageDialog(rootPane, "U datoteci se ne nalazi matrica!");
                         exit(0); //ovo isto zatvori sve,a želim da se vrati u formu 1
