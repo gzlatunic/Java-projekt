@@ -9,6 +9,17 @@
  * @author gabrijela
  */
 public class Sustav {
+    double[] rješenje;
+    
+    public Sustav(){
+        rješenje = null;
+    }
+    public void setRjesenje(double[] t){
+        this.rješenje = t;
+    }
+    public double[] getRjesenje(){
+        return this.rješenje;
+    }
     public double[] riješiJednadžbu(Matrica A, double[] b){
         double[] rješenje = new double[A.dimenzija];
         

@@ -1,19 +1,14 @@
 
 import java.awt.Font;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.sql.*;
 import java.util.Scanner;
@@ -22,6 +17,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingWorker;
 
 
 
@@ -150,24 +146,25 @@ public class DrugaForma extends javax.swing.JFrame {
                     x += 40;
                 }
                 else
-                {   x += 10;
-                String var = "tekst" + i;
-                JTextField tekstic = new JTextField();
-                tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
-                tekstic.setName(var);
-                tekstic.addActionListener(new FieldListener());
-                mapa_jednakost.put(var, tekstic);
-                tekstic.setBounds(x, y, 30, 30);
-                tekstic.setVisible(true);
-                this.add(tekstic);
+                {   x += 40;
+                    String var = "tekst" + i;
+                    JTextField tekstic = new JTextField();
+                    tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
+                    tekstic.setName(var);
+                    tekstic.addActionListener(new FieldListener());
+                    mapa_jednakost.put(var, tekstic);
+                    tekstic.setBounds(x, y, 35, 35);
+                    tekstic.setVisible(true);
+                    this.add(tekstic);
                 }
             }
             y += 40;
         }
         x = 0;
-        JButton stvoriMatricu = new JButton("Stvorite matricu");
+        JButton stvoriMatricu = new JButton("Riješi sustav");
         stvoriMatricu.setBounds(x + 10, y +10, 150, 50);
         this.add(stvoriMatricu);
+        /*
         stvoriMatricu.addActionListener(e -> {
             try {
                 riješi_sustav(dimenzija);
@@ -175,8 +172,14 @@ public class DrugaForma extends javax.swing.JFrame {
                 Logger.getLogger(DrugaForma.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        //PROVJERI ŠTO JE OVO
+        */
+        Sustav objekt = new Sustav();
         
+        stvoriMatricu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent arg0){
+                start_stvori(objekt, dimenzija);
+            }
+        });
         file_save_path.setName("file_save_path");
         file_save_path.setBounds(x + 10, y +60, 150, 50);
         file_save_path.setVisible(true);
@@ -184,13 +187,22 @@ public class DrugaForma extends javax.swing.JFrame {
         JButton spremiMatricu = new JButton("Spremi matricu");
         spremiMatricu.setBounds(x + 10, y +110, 150, 50);
         this.add(spremiMatricu);
+        spremiMatricu.addActionListener(e -> put_i_spremanje(objekt.rješenje, dimenzija));
         spremiMatricu.addActionListener(e -> spremi());
         
         
         //triba povezat botun sa spremanjen u bazu
     }
-    
-    //Vrati se na ovo pa u to ukumponiraj da radi - Gabi
+    private void start_stvori(Sustav objekt, int dim){
+        SwingWorker<Void, Void> radnik = new SwingWorker<Void, Void>(){
+            @Override
+            protected Void doInBackground() throws Exception{
+                System.out.println("Rješava u ovoj dretvi!");
+                riješi_sustav(objekt, dim);
+                return null;
+            }};
+        radnik.execute();
+    }
     public void my_update1(double[][] matrica, String matrix_path){
                 
         int x = 10;
@@ -221,7 +233,9 @@ public class DrugaForma extends javax.swing.JFrame {
                     tekstic.setFont(new Font("Consolas", Font.PLAIN, 12));
                     tekstic.setName(var);
                     tekstic.setText(Double.toString(matrica[i][j]));
+                    
                     tekstic.addActionListener(new FieldListener());
+             
                     mapa.put(var, tekstic);
                     tekstic.setBounds(x, y, 30, 30);
                     tekstic.setVisible(true);
@@ -231,32 +245,29 @@ public class DrugaForma extends javax.swing.JFrame {
             y += 40;
         }
         x = 0;
-        
-        JButton rjesenje = new JButton("Pogledaj rješnje!");
+        JButton rjesenje = new JButton("Pogledaj rješenje!");
         //ode provjerit u bazi jel rješeno do kraja pa to javit u message dialogu
         rjesenje.setBounds(x + 10, y + 70, 150, 50); //ov prilagodit
         this.add(rjesenje);
         rjesenje.addActionListener(e -> imaLiRjesenje(matrix_path, chosen_path));
         
-        
-        //stvoriMatricu.addActionListener(e -> mat(dimenzija));
     }
     
  
-    public void riješi_sustav(int dim) throws IOException{
+    public void riješi_sustav(Sustav obj, int dim) throws IOException{
         Matrica vrati_matricu = new Matrica(dim);
         for(int i = 0; i < dim; i++){
             for(int j = 0; j < dim; j++){
                 String ime = "tekst" + i + j;
                 JTextField temp = mapa.get(ime);
-                vrati_matricu.matrica[i][j] = Double.parseDouble((String.valueOf(temp.getText())));
+                vrati_matricu.matrica[i][j] = dodaj_u_matricu(temp);
             }
         }
         double[] b = new double[dim];
         for(int i = 0; i < dim; i++){
             String ime = "tekst" + i;
             JTextField temp = mapa_jednakost.get(ime);
-            b[i] = Double.parseDouble((String.valueOf(temp.getText())));
+            b[i] = dodaj_u_matricu(temp);
         }
         DvijeMatrice dvije = luFaktorizacija(vrati_matricu, dim);
         
@@ -264,15 +275,15 @@ public class DrugaForma extends javax.swing.JFrame {
         
         Matrica U = dvije.B;
         
-        Sustav obj = new Sustav();
         double[] y = obj.riješiJednadžbu(L, b);
         double[] rj = obj.riješiJednadžbu(U, y);
-        
+        obj.rješenje = rj;
         System.out.print("Rješenje sustava:");
         for(int i = 0; i < dim; i++){
             System.out.print(rj[i] + "   ");
         }
-        
+    }
+    public void put_i_spremanje(double[] objekt, int dim){
         //upisivanje matrice u datoteku i spremanje u bazu
         try {
        
@@ -326,7 +337,7 @@ public class DrugaForma extends javax.swing.JFrame {
 
 
             for (int i = 0; i < dim ; i++) {
-                writer.write(rj[i]+ " ");
+                writer.write(objekt[i]+ " ");
             }
             writer.flush();
             writer.close();
@@ -337,6 +348,17 @@ public class DrugaForma extends javax.swing.JFrame {
             System.out.println(chosen_path);
         }
         imaLiRjesenje(chosen_path, solution_path);
+        }
+    public double dodaj_u_matricu(JTextField t){
+        try{
+        double vrati = Double.parseDouble((String.valueOf(t.getText())));
+        return vrati;
+        }
+        catch(Exception e){
+            System.out.println("Niste unijeli ispravne podatke!");
+            t.setText("");
+            return -0;
+        }
     }
     public DvijeMatrice luFaktorizacija(Matrica matr, int dim){
         // Ovdje treba popraviti dio sa dijeljenjem jer java zaokružuje prema nuli
